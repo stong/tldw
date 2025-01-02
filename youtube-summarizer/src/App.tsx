@@ -9,6 +9,7 @@ export default function VideoSummary() {
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

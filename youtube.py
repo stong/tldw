@@ -285,10 +285,17 @@ class VideoExtractor:
 class Summarizer:
     def __init__(self):
         self.client = OpenAI()
+        ensure_cache_dir()
 
     def summarize(self, text, video_info):
+        video_id = video_info['id']
         video_title = video_info['fulltitle']
         video_description = video_info['description']
+
+        cache_file = os.path.join(CACHE_DIR, video_id + '.summaries.json')
+        if os.path.isfile(cache_file):
+            print(f'Using cached summaries: {cache_file}')
+            return json.load(open(cache_file))
 
         summaries = {}
         messages=[
@@ -329,6 +336,9 @@ class Summarizer:
         summaries['word'] = message.content
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
+
+        with open(cache_file, 'w') as f:
+            json.dump(summaries, f, indent=4)
 
         return summaries
 
