@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { 
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useSearchParams,
+  useNavigate
+} from 'react-router-dom';
 
-export default function VideoSummary() {
+function VideoSummary() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -9,16 +16,23 @@ export default function VideoSummary() {
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
 
-  // Handle initial video ID from URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Handle URL changes (including back/forward navigation)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const videoId = params.get('v');
+    const videoId = searchParams.get('v');
     if (videoId) {
       const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
       setUrl(fullUrl);
       handleSummarize(fullUrl);
+    } else {
+      // Clear state when no video ID is present
+      setSummary(null);
+      setThumbnailUrl(null);
+      setVideoTitle(null);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleSummarize = async (videoUrl) => {
     setLoading(true);
@@ -34,11 +48,15 @@ export default function VideoSummary() {
         },
         body: JSON.stringify({ url: videoUrl }),
       });
-      
-      const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get summary');
+        throw new Error('Failed to get summary');
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error('Failed to get summary');
       }
       
       setSummary(data.summary);
@@ -46,9 +64,7 @@ export default function VideoSummary() {
       setVideoTitle(data.title);
 
       // Update URL with video ID
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.set('v', data.video_id);
-      window.history.pushState({}, '', newUrl);
+      setSearchParams({ v: data.video_id });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -129,5 +145,16 @@ export default function VideoSummary() {
         )}
       </div>
     </div>
+  );
+}
+
+// Wrapper component for React Router
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<VideoSummary />} />
+      </Routes>
+    </Router>
   );
 }

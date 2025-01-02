@@ -100,7 +100,7 @@ class VideoExtractor:
         content = response.text
 
         with open(cache_file, 'w') as f:
-            f.write(downloaded_content)
+            f.write(content)
 
         return content
 
@@ -325,10 +325,22 @@ class Summarizer:
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
-        messages.append({"role": "user", "content": 'Now summarize it into just one phrase, of less than five words, ideally one or two words. Examples: "Yes." "No." "It depends." "Nobody knows." "Poor geography." "No market need." Climate change." "It\'s complicated." "Not really." "Mostly." "Usually." Focus on the overall or underlying takeaway, cause, reason, or answer BEYOND what\'s already in the title and description. Basically, provide a single answer to the question the video poses. PROVIDE NO OTHER OUTPUT OTHER THAN THE WORD(S).'})
+        messages.append({"role": "user", "content": f'Rephrase the video title into a single motivating question. This should be the overall TOPIC of the video. This could be just the video title verbatim, especially if it is already a question. Don\'t use information outside of the video title. As a reminder, here is the video title again: "{video_title}". PROVIDE NO OTHER OUTPUT OTHER THAN THE QUESTION.'})
 
         completion = self.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
+            store=True,
+            messages=messages,
+        )
+        message = completion.choices[0].message
+        summaries['question'] = message.content
+        messages.append({"role": "assistant", "content": message.content})
+        print(message.content)
+
+        messages.append({"role": "user", "content": 'Answer the question we just asked with just a single phrase, ideally one or two words. Examples: "Yes." "No." "It depends." "Nobody knows." "Poor geography." "No market need." Climate change." "It\'s complicated." "Not really." "Mostly." "Usually." PROVIDE NO OTHER OUTPUT OTHER THAN THE WORD(S).'})
+
+        completion = self.client.chat.completions.create(
+            model="gpt-4o",
             store=True,
             messages=messages,
         )
