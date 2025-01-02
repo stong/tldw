@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 export default function VideoSummary() {
@@ -9,12 +9,22 @@ export default function VideoSummary() {
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
 
+  // Handle initial video ID from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const videoId = params.get('v');
+    if (videoId) {
+      const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      setUrl(fullUrl);
+      handleSummarize(fullUrl);
+    }
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSummarize = async (videoUrl) => {
     setLoading(true);
     setError('');
     setThumbnailUrl(null);
+    setVideoTitle(null);
     
     try {
       const response = await fetch('http://localhost:5000/api/summarize', {
@@ -22,7 +32,7 @@ export default function VideoSummary() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: videoUrl }),
       });
       
       const data = await response.json();
@@ -34,11 +44,21 @@ export default function VideoSummary() {
       setSummary(data.summary);
       setThumbnailUrl(data.thumbnail_url);
       setVideoTitle(data.title);
+
+      // Update URL with video ID
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('v', data.video_id);
+      window.history.pushState({}, '', newUrl);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleSummarize(url);
   };
 
   return (
