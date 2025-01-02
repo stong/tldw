@@ -93,9 +93,18 @@ def summarize_video():
         # Generate summaries
         summaries = summarizer.summarize(caption_text, video_info)
         
+        # Get the thumbnail with highest preference
+        thumbnails = video_info.get('thumbnails', [])
+        thumbnail_url = None
+        if thumbnails:
+            best_thumbnail = max(thumbnails, key=lambda x: x.get('preference', 0))
+            thumbnail_url = best_thumbnail.get('url')
+
         return jsonify({
             "success": True,
             "video_id": video_id,
+            "title": video_info.get('title', ''),
+            "thumbnail_url": thumbnail_url,
             "summary": summaries
         }), 200
         
@@ -106,4 +115,4 @@ def summarize_video():
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000)
+    app.run(host='0.0.0.0', port=5000)
