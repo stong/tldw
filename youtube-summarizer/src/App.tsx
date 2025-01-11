@@ -49,22 +49,20 @@ function VideoSummary() {
         body: JSON.stringify({ url: videoUrl }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get summary');
-      }
-
       const data = await response.json();
 
-      if (!data.success) {
-        throw new Error('Failed to get summary');
+      // Update url with id
+      if (data && data.video_id) {
+        setSearchParams({ v: data.video_id });
       }
-      
+
+      if (!response.ok) {
+        throw new Error((data && data.error) || 'Failed to get summary');
+      }
+
       setSummary(data.summary);
       setThumbnailUrl(data.thumbnail_url);
       setVideoTitle(data.title);
-
-      // Update URL with video ID
-      setSearchParams({ v: data.video_id });
     } catch (err) {
       setError(err.message);
     } finally {

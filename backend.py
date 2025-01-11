@@ -41,7 +41,7 @@ def validate_youtube_url(url: str) -> bool:
     try:
         yt_dlp.extractor.youtube.YoutubeIE.extract_id(url)
         return True
-    except yt_dlp.utils.DownloadError:
+    except yt_dlp.utils.YoutubeDLError:
         return False
 
 @app.route('/api/health', methods=['GET'])
@@ -80,6 +80,11 @@ def summarize_video():
 
         # Get captions
         caption_track = extractor.get_captions_by_priority(video_info)
+        if not caption_track:
+            return jsonify({
+                'error': 'Captions are not available',
+                'video_id': video_id
+            }), 500
         ext = caption_track['ext']
         
         app.logger.info(f'Using captions track: {caption_track["name"]} ({ext})')

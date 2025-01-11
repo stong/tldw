@@ -325,7 +325,7 @@ class Summarizer:
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
-        messages.append({"role": "user", "content": f'Rephrase the video title into a single motivating question. This should be the overall TOPIC of the video. This could be just the video title verbatim, especially if it is already a question. Don\'t use information outside of the video title. As a reminder, here is the video title again: "{video_title}". PROVIDE NO OTHER OUTPUT OTHER THAN THE QUESTION.'})
+        messages.append({"role": "user", "content": f'Rephrase the video title into a single motivating question. Focus on the overall TOPIC or SUBJECT of the video. This could be just the video title verbatim, especially if it is already a question. Don\'t use information outside of the video title. For example, if the title is "This problem ...", the question would be "What problem ...?". As a reminder, here is the video title again: "{video_title}". PROVIDE NO OTHER OUTPUT OTHER THAN THE QUESTION.'})
 
         completion = self.client.chat.completions.create(
             model="gpt-4o",
