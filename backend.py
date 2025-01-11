@@ -90,7 +90,7 @@ def summarize_video():
             return jsonify({
                 'error': 'Captions are not available',
                 'video_id': video_id
-            }), 500
+            }), 400
         ext = caption_track['ext']
         
         app.logger.info(f'Using captions track: {caption_track["name"]} ({ext})')
@@ -103,6 +103,11 @@ def summarize_video():
         
         # Generate summaries
         summaries = summarizer.summarize(caption_text, video_info)
+
+        if not summaries:
+            return jsonify({
+                "error": "Too long video"
+            }), 400
         
         # Get the thumbnail with highest preference
         thumbnails = video_info.get('thumbnails', [])
