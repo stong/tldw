@@ -83,6 +83,14 @@ def summarize_video():
             }), 500
 
         video_id = video_info['id']
+        duration = video_info['duration']
+
+        # If video too long, reject
+        print(f'Video id: {video_id}, duration: {duration} = {duration//60}:{duration%60:02}')
+        if duration >= 5400:
+            return jsonify({
+                "error": "Too long video"
+            }), 400
 
         # Get captions
         caption_track = extractor.get_captions_by_priority(video_info)
@@ -100,9 +108,16 @@ def summarize_video():
         
         # Parse captions
         caption_text = extractor.parse_captions(ext, downloaded_content)
+
+        print(f'Caption length: {len(caption_text)}')
         
         # Generate summaries
         summaries = summarizer.summarize(caption_text, video_info)
+
+        if not summaries:
+            return jsonify({
+                "error": "Failed to summarize"
+            }), 500
         
         # Get the thumbnail with highest preference
         thumbnails = video_info.get('thumbnails', [])
