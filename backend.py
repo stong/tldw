@@ -13,6 +13,17 @@ app.config['PROXY_URL'] = None  # Default value
 
 cors = CORS(app)  # Enable CORS for all routes
 
+# More specific CORS configuration
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://tldw.tube",
+            "http://localhost:5173", # for local development
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+    }
+})
+
 # Load environment variables
 dotenv.load_dotenv()
 
