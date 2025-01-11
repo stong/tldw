@@ -5,19 +5,23 @@ import {
   Routes,
   Route,
   useSearchParams,
-  useNavigate
 } from 'react-router-dom';
+
+interface Summary {
+  word: string;
+  sentence: string;
+  paragraph: string;
+}
 
 function VideoSummary() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [summary, setSummary] = useState(null);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [videoTitle, setVideoTitle] = useState(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   // Handle URL changes (including back/forward navigation)
   useEffect(() => {
@@ -34,7 +38,7 @@ function VideoSummary() {
     }
   }, [searchParams]);
 
-  const handleSummarize = async (videoUrl) => {
+  const handleSummarize = async (videoUrl: string) => {
     setLoading(true);
     setError('');
     setThumbnailUrl(null);
@@ -63,14 +67,14 @@ function VideoSummary() {
       setSummary(data.summary);
       setThumbnailUrl(data.thumbnail_url);
       setVideoTitle(data.title);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleSummarize(url);
   };
