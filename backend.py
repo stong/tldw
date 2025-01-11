@@ -28,7 +28,7 @@ CORS(app, resources={
 dotenv.load_dotenv()
 
 # Rate limiting decorator
-def rate_limit(limit=60):  # 60 requests per minute by default
+def rate_limit(limit=5):  # 60 requests per minute by default
     def decorator(f):
         requests = {}
         
