@@ -11,6 +11,7 @@ interface Summary {
   word: string;
   sentence: string;
   paragraph: string;
+  wikipedia: string;
 }
 
 function VideoSummary() {
@@ -45,7 +46,7 @@ function VideoSummary() {
     setVideoTitle(null);
     
     try {
-      const response = await fetch('https://api.tldw.tube/api/summarize', {
+      const response = await fetch('https://localhost:5000/api/summarize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -134,7 +135,7 @@ function VideoSummary() {
             
             {/* Word and Sentence Summary */}
             <div>
-              <h2 className="text-2xl font-bold mb-2">{summary.word}</h2>
+              <h2 className="text-2xl font-bold mb-2">{summary.word}</h2> wikipedia
               <p className="text-lg text-justify hyphens-auto">{summary.sentence}</p>
             </div>
             

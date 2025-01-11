@@ -7,7 +7,7 @@ import os
 import requests
 import webvtt
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, quote_plus
 import dotenv
 from openai import OpenAI
 
@@ -39,6 +39,7 @@ class VideoExtractor:
             'skip_download': True,  # Don't download the video file
             'quiet': False,
             'no_warnings': False,
+            'no-playlist': True
         }
 
         if proxy:
@@ -286,7 +287,7 @@ class VideoExtractor:
         try:
             with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
                 # Get video info
-                video_info = ydl.extract_info(url, download=False)
+                video_info = ydl.extract_info(f'https://youtube.com/watch?v={video_id}', download=False)
                 video_id = video_info['id']
         except YoutubeDLError as e:
             print(f"Error extracting video information: {str(e)}")
@@ -361,6 +362,18 @@ class Summarizer:
         )
         message = completion.choices[0].message
         summaries['word'] = message.content
+        messages.append({"role": "assistant", "content": message.content})
+        print(message.content)
+
+        messages.append({"role": "user", "content": 'Now suggest a search term for a Wikipedia search MOST LIKELY to take the user to the page this YouTube video was inspired from.'})
+
+        completion = self.client.chat.completions.create(
+            model="gpt-4o",
+            store=True,
+            messages=messages,
+        )
+        message = completion.choices[0].message
+        summaries['wikipedia'] = 'https://en.wikipedia.org/w/index.php?search=' + quote_plus(message.content)
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
