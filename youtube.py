@@ -20,8 +20,15 @@ def ensure_cache_dir():
     if not os.path.isdir(CACHE_DIR):
         raise ValueError(f'{CACHE_DIR} is not a directory')
 
+def validate_youtube_url(url: str) -> bool:
+    try:
+        video_id = yt_dlp.extractor.youtube.YoutubeIE.extract_id(url)
+        return True
+    except YoutubeDLError:
+        return False
+
 class VideoExtractor:
-    def __init__(self):
+    def __init__(self, proxy: Optional[str] = None):
         ensure_cache_dir()
 
         self.ydl_opts = {
@@ -31,8 +38,12 @@ class VideoExtractor:
             'subtitleslangs': ['en', 'en-US', 'en-CA'],  # Focus on English captions for now
             'skip_download': True,  # Don't download the video file
             'quiet': False,
-            'no_warnings': False
+            'no_warnings': False,
         }
+
+        if proxy:
+            print(f'Setting proxy: {proxy[:10]}...')
+            self.ydl_opts['proxy'] = proxy
 
     def get_captions_by_priority(self, info: Dict) -> Optional[Dict]:
         """
@@ -364,9 +375,10 @@ def main():
     parser = argparse.ArgumentParser(description='Extract YouTube video information')
     parser.add_argument('url', help='YouTube video URL')
     parser.add_argument('--output', '-o', help='Output file path (optional)')
+    parser.add_argument('--proxy', '-x', help='Proxy URL (optional)')
     args = parser.parse_args()
 
-    extractor = VideoExtractor()
+    extractor = VideoExtractor(proxy=args.proxy)
     summarizer = Summarizer()
 
     # Download metadata

@@ -1,15 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from functools import wraps
-import yt_dlp
 import time
 import dotenv
 from typing import Optional, Dict, Any
 import os
-from youtube import VideoExtractor, Summarizer
+from youtube import VideoExtractor, Summarizer, validate_youtube_url
 import traceback
 
 app = Flask(__name__)
+app.config['PROXY_URL'] = None  # Default value
+
 cors = CORS(app)  # Enable CORS for all routes
 
 # Load environment variables
@@ -38,13 +39,6 @@ def rate_limit(limit=60):  # 60 requests per minute by default
         return wrapped
     return decorator
 
-def validate_youtube_url(url: str) -> bool:
-    try:
-        yt_dlp.extractor.youtube.YoutubeIE.extract_id(url)
-        return True
-    except yt_dlp.utils.YoutubeDLError:
-        return False
-
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"}), 200
@@ -67,7 +61,7 @@ def summarize_video():
         }), 400
     
     try:
-        extractor = VideoExtractor()
+        extractor = VideoExtractor(proxy=app.config['PROXY_URL'])
         summarizer = Summarizer()
 
         # Download metadata
@@ -126,6 +120,8 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Server configuration')
     parser.add_argument('--port', type=int, default=5000, help='Port number (default: 5000)')
+    parser.add_argument('--proxy', default=os.getenv('PROXY_URL'), help='Proxy URL (default: PROXY_URL environment variable or None)')
     args = parser.parse_args()
+    app.config['PROXY_URL'] = args.proxy
     print(f'Serving on port {args.port}')
     serve(app, host="0.0.0.0", port=args.port)
