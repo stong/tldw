@@ -135,7 +135,7 @@ function VideoSummary() {
             
             {/* Word and Sentence Summary */}
             <div>
-              <h2 className="text-2xl font-bold mb-2">{summary.word}</h2> wikipedia
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">{summary.word} <a href={summary.wikipedia}><img className="inline-block h-8 w-8" src="/wikipedia.svg" alt="Wikipedia Logo"/></a></h2>
               <p className="text-lg text-justify hyphens-auto">{summary.sentence}</p>
             </div>
             

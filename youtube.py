@@ -353,7 +353,7 @@ class Summarizer:
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
-        messages.append({"role": "user", "content": 'Answer the question we just asked with just a single phrase, ideally one or two words. Examples: "Yes." "No." "It depends." "Nobody knows." "Poor geography." "No market need." Climate change." "It\'s complicated." "Not really." "Mostly." "Usually." PROVIDE NO OTHER OUTPUT OTHER THAN THE WORD(S).'})
+        messages.append({"role": "user", "content": 'Answer the question we just asked with just a single phrase, ideally one or two words. Examples: "Is EVOLUTION REAL?" -> "Yes." "Have scientists achieved fusion?" -> "No." "It depends." "Will AI take over the world?" -> "Nobody knows." "Why NO ONE lives here" -> "Poor geography." "Inside Disney\'s $1 BILLION disaster" -> "No market need." "Scientists FEAR this one thing" -> "Climate change." "Why is there war in the middle east?" -> "It\'s complicated." "Have we unlocked the secret to QUANTUM COMPUTING?" -> "Not really." "A day from Hell" -> "1999 Moore tornado" ... -> "Mostly." ... -> "Usually." PROVIDE NO OTHER OUTPUT OTHER THAN THE WORD(S) OF THE ANSWER.'})
 
         completion = self.client.chat.completions.create(
             model="gpt-4o",
@@ -365,7 +365,7 @@ class Summarizer:
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
-        messages.append({"role": "user", "content": 'Now suggest a search term for a Wikipedia search MOST LIKELY to take the user to the page this YouTube video was inspired from.'})
+        messages.append({"role": "user", "content": 'Now suggest a search term for a Wikipedia search that replaces watching the video. Make the search SPECIFIC to the TOPIC of the video. For example: "The $6 Billion Transit Project with No Ridership" -> "FasTracks"; "Why NOBODY lives in this part of China" -> "Gobi Desert"; "This unknown professor REVOLUTIONIZED ..." -> "Joseph-Louis Lagrange"; "Every Computer Can Be Hacked!" -> "Zero-Day Vulnerability"; Provide the Wikipedia page name with no special punctuation:'})
 
         completion = self.client.chat.completions.create(
             model="gpt-4o",
@@ -373,6 +373,7 @@ class Summarizer:
             messages=messages,
         )
         message = completion.choices[0].message
+        summaries['word'] += f' ({message.content})'
         summaries['wikipedia'] = 'https://en.wikipedia.org/w/index.php?search=' + quote_plus(message.content)
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
