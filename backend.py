@@ -126,11 +126,17 @@ def summarize_video():
             best_thumbnail = max(thumbnails, key=lambda x: x.get('preference', 0))
             thumbnail_url = best_thumbnail.get('url')
 
+        aspect_ratio = video_info.get('aspect_ratio', 1.78)
+        webpage_url = video_info.get('webpage_url', 'https://www.youtube.com/watch?v=' + video_id)
+
         return jsonify({
             "success": True,
+            "error": "",
             "video_id": video_id,
             "title": video_info.get('title', ''),
             "thumbnail_url": thumbnail_url,
+            "aspect_ratio": aspect_ratio,
+            "webpage_url": webpage_url,
             "summary": summaries
         }), 200
         

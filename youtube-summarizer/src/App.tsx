@@ -14,39 +14,60 @@ interface Summary {
   wikipedia: string;
 }
 
+interface ResponseData {
+  success: boolean;
+  error: string;
+  video_id: string;
+  title: string;
+  thumbnail_url: string;
+  webpage_url: string;
+  aspect_ratio: number;
+  summary: Summary;
+}
+
+interface VideoInfo {
+  video_id: string;
+  title: string;
+  thumbnail_url: string;
+  aspect_ratio: number;
+  webpage_url: string;
+}
+
 function VideoSummary() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [summary, setSummary] = useState<Summary | null>(null);
-  const [thumbnailUrl, setThumbnailUrl] = useState(null);
-  const [videoTitle, setVideoTitle] = useState(null);
-
+  const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Handle URL changes (including back/forward navigation)
   useEffect(() => {
     const videoId = searchParams.get('v');
+    const currentVideoId = (videoInfo && videoInfo.video_id) || ''
     if (videoId) {
-      const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      setUrl(fullUrl);
-      handleSummarize(fullUrl);
+      if (videoId != currentVideoId) {
+        const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        if (!videoInfo || !summary || fullUrl != url) {
+          setUrl(fullUrl);
+          handleSummarize(fullUrl);
+        }
+      }
     } else {
       // Clear state when no video ID is present
       setSummary(null);
-      setThumbnailUrl(null);
-      setVideoTitle(null);
+      setVideoInfo(null);
     }
   }, [searchParams]);
 
   const handleSummarize = async (videoUrl: string) => {
     setLoading(true);
     setError('');
-    setThumbnailUrl(null);
-    setVideoTitle(null);
+    setSummary(null);
+    setVideoInfo(null);
     
     try {
-      const response = await fetch('https://localhost:5000/api/summarize', {
+      const response = await fetch('https://api.tldw.tube/api/summarize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,11 +75,14 @@ function VideoSummary() {
         body: JSON.stringify({ url: videoUrl }),
       });
 
-      const data = await response.json();
+      const data: ResponseData = await response.json();
 
       // Update url with id
       if (data && data.video_id) {
-        setSearchParams({ v: data.video_id });
+        const currentSearchParam = searchParams.get('v');
+        if (currentSearchParam != data.video_id) {
+          setSearchParams({ v: data.video_id });
+        }
       }
 
       if (!response.ok) {
@@ -66,8 +90,16 @@ function VideoSummary() {
       }
 
       setSummary(data.summary);
-      setThumbnailUrl(data.thumbnail_url);
-      setVideoTitle(data.title);
+
+      const videoInfo: VideoInfo = {
+        video_id: data.video_id,
+        title: data.title,
+        thumbnail_url: data.thumbnail_url,
+        aspect_ratio: data.aspect_ratio,
+        webpage_url: data.webpage_url
+      };
+      setUrl(data.webpage_url);
+      setVideoInfo(videoInfo);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -77,7 +109,9 @@ function VideoSummary() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleSummarize(url);
+    if (!videoInfo || videoInfo.webpage_url != url) {
+      await handleSummarize(url);
+    }
   };
 
   return (
@@ -117,28 +151,30 @@ function VideoSummary() {
         )}
 
         {/* Results */}
-        {summary && !loading && (
+        {summary && !loading && videoInfo && (
           <div className="space-y-8">
             {/* Video title and thumbnail */}
-            {videoTitle && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold">{videoTitle}</h2>
-                {thumbnailUrl && (
-                  <img 
-                    src={thumbnailUrl} 
-                    alt={videoTitle}
-                    className="w-full rounded-lg shadow-lg"
-                  />
-                )}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">{videoInfo.title}</h2>
+              <div style={{ position: 'relative', width: '100%', paddingBottom: `${(1 / videoInfo.aspect_ratio) * 100}%` }}>
+                <iframe
+                  src={"https://www.youtube.com/embed/" + videoInfo.video_id}
+                  style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0 }}
+                  title={videoInfo.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
               </div>
-            )}
-            
+            </div>
+
             {/* Word and Sentence Summary */}
             <div>
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">{summary.word} <a href={summary.wikipedia}><img className="inline-block h-8 w-8" src="/wikipedia.svg" alt="Wikipedia Logo"/></a></h2>
               <p className="text-lg text-justify hyphens-auto">{summary.sentence}</p>
             </div>
-            
+
             {/* Paragraph Summary */}
             <div>
               <h2 className="text-2xl font-bold mb-2">Full summary</h2>
