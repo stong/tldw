@@ -47,7 +47,7 @@ class VideoExtractor:
             Caption json blob (fields ext, url, name)
         """
         # Priority order for subtitle languages
-        subtitle_priorities = ['en-US', 'en-CA']
+        subtitle_priorities = ['en-US', 'en-CA', 'en']
         auto_caption_priorities = ['en-orig', 'en-US', 'en-CA', 'en']
         format_priorities = ['vtt', 'srt', 'ttml']
         
@@ -62,17 +62,19 @@ class VideoExtractor:
                     break
             
             # Then check for any other en-* variants
-            for lang in info['subtitles'].keys():
-                if lang.startswith('en-'):
-                    caption_track = info['subtitles'][lang]
-                    break
+            else:
+                for lang in info['subtitles'].keys():
+                    if lang.startswith('en-'):
+                        caption_track = info['subtitles'][lang]
+                        break
 
         # Check automatic captions if no manual subtitles found
-        if info.get('automatic_captions'):
-            for lang in auto_caption_priorities:
-                if lang in info['automatic_captions']:
-                    caption_track = info['automatic_captions'][lang]
-                    break
+        if not caption_track:
+            if info.get('automatic_captions'):
+                for lang in auto_caption_priorities:
+                    if lang in info['automatic_captions']:
+                        caption_track = info['automatic_captions'][lang]
+                        break
 
         if not caption_track:
             return None
@@ -80,11 +82,13 @@ class VideoExtractor:
         # Find the preferred format
         for format in format_priorities:
             for track in caption_track:
+                if not 'name' in track or track.get('protocol') == 'm3u8_native': # skip weird m3u8 captions
+                    continue
                 if track.get('ext') == format:
                     return track
         
-        # If no preferred format found, return the first available format
-        return caption_track[0]
+        # If no compatible format found, fail
+        return None
 
     def download_captions(self, video_id: str, caption_obj: Dict) -> str:
         ext = caption_obj['ext']
@@ -375,7 +379,6 @@ def main():
     # Get captions
     caption_track = extractor.get_captions_by_priority(video_info)
     ext = caption_track['ext']
-    print(caption_track['url'])
     print(f'Using captions track: {caption_track['name']} ({ext})')
     
     # Download captions

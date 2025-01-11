@@ -7,6 +7,7 @@ import dotenv
 from typing import Optional, Dict, Any
 import os
 from youtube import VideoExtractor, Summarizer
+import traceback
 
 app = Flask(__name__)
 cors = CORS(app)  # Enable CORS for all routes
@@ -115,9 +116,16 @@ def summarize_video():
         
     except Exception as e:
         app.logger.error(f"Error processing video: {str(e)}")
+        app.logger.error(traceback.format_exc())
         return jsonify({
             "error": f"An error occurred: {str(e)}"
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    from waitress import serve
+    import argparse
+    parser = argparse.ArgumentParser(description='Server configuration')
+    parser.add_argument('--port', type=int, default=5000, help='Port number (default: 5000)')
+    args = parser.parse_args()
+    print(f'Serving on port {args.port}')
+    serve(app, host="0.0.0.0", port=args.port)
