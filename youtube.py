@@ -155,6 +155,10 @@ class VideoExtractor:
         # Format with leading zeros and exactly 3 decimal places
         return f"{hours:02d}:{minutes:02d}:{seconds:06.3f}"
 
+    # because webvtt's shit doesn't include fractional part (the milliseconds), causing fucking problems !!
+    def _ts_to_secs(self, timestamp):
+        return timestamp.in_seconds() + (timestamp.milliseconds / 1000)
+
     # adapted from https://github.com/bindestriche/srt_fix/blob/5b4442a8cdcae06c53545f4d0c99c3e624416919/simplesrt.py#L132C1-L201C28
     def dedupe_yt_captions(self, subs_iter):
         previous_subtitle = None
@@ -170,7 +174,7 @@ class VideoExtractor:
             if len(subtitle.text) == 0:  # skip over empty subtitles
                 continue
 
-            if (subtitle.start_in_seconds - subtitle.end_in_seconds < 0.15 and # very short
+            if (self._ts_to_secs(subtitle.start_time) - self._ts_to_secs(subtitle.end_time) < 0.15 and # very short
                     subtitle.text in previous_subtitle.text ): # same text as previous
                 previous_subtitle.end = subtitle.end # lengthen previous subtitle
                 continue
@@ -202,10 +206,10 @@ class VideoExtractor:
                     continue # drop this subtitle
 
 
-            if subtitle.start_in_seconds <= previous_subtitle.end_in_seconds: # remove overlap and let 1ms gap
-                previous_subtitle.end = self._seconds_to_timestamp(subtitle.start_in_seconds - 0.001)
-
-            if subtitle.start_in_seconds >= subtitle.end_in_seconds: # swap start and end if wrong order
+            if self._ts_to_secs(subtitle.start_time) <= self._ts_to_secs(previous_subtitle.end_time): # remove overlap and let 1ms gap
+                new_time = max(self._ts_to_secs(subtitle.start_time) - 0.001, 0)
+                previous_subtitle.end = self._seconds_to_timestamp(new_time)
+            if self._ts_to_secs(subtitle.start_time) >= self._ts_to_secs(subtitle.end_time): # swap start and end if wrong order
                 subtitle.start, subtitle.end = subtitle.end, subtitle.start
                 
 
