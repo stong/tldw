@@ -33,6 +33,12 @@ interface VideoInfo {
   webpage_url: string;
 }
 
+const getApiBaseUrl = () => {
+  return window.location.hostname === 'localhost'
+    ? 'http://localhost:5000'
+    : 'https://api.tldw.tube';
+};
+
 function VideoSummary() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -67,7 +73,8 @@ function VideoSummary() {
     setVideoInfo(null);
     
     try {
-      const response = await fetch('https://api.tldw.tube/api/summarize', {
+
+      const response = await fetch(`${getApiBaseUrl()}/api/summarize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
