@@ -189,9 +189,17 @@ function VideoSummary() {
             href="https://github.com/stong/tldw"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
           >
             GitHub
+          </a>
+          <a
+            href="https://zellic.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
+          >
+            Zellic
           </a>
         </div>
       </div>
