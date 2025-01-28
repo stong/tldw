@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { 
+import {
   BrowserRouter as Router,
   Routes,
   Route,
@@ -71,7 +71,7 @@ function VideoSummary() {
     setError('');
     setSummary(null);
     setVideoInfo(null);
-    
+
     try {
 
       const response = await fetch(`${getApiBaseUrl()}/api/summarize`, {
@@ -122,7 +122,7 @@ function VideoSummary() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-900 dark:text-zinc-200 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="pb-12">
           <h1 className="text-4xl font-bold text-center mb-12"><a href="/">TL;DW</a></h1>
@@ -133,12 +133,13 @@ function VideoSummary() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Paste YouTube URL here..."
-              className="flex-1 max-w-xl px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 max-w-xl px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 dark:focus:ring-blue-600 dark:placeholder:text-zinc-500"
             />
             <button
               type="submit"
+              title="Summarize"
               disabled={loading || !url}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors dark:bg-blue-700 dark:hover:bg-blue-600 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-400"
             >
               <ArrowRight size={20} />
             </button>
@@ -146,14 +147,14 @@ function VideoSummary() {
 
           {/* Loading State */}
           {loading && (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-500 dark:text-zinc-400">
               Analyzing video...
             </div>
           )}
 
           {/* Error Message */}
           {error && (
-            <div className="text-center text-red-500 mb-8">
+            <div className="text-center text-red-500 dark:text-red-600 mb-8">
               {error}
             </div>
           )}
@@ -186,7 +187,7 @@ function VideoSummary() {
               {/* Paragraph Summary */}
               <div>
                 <h2 className="text-2xl font-bold mb-2">Full summary</h2>
-                <p className="text-gray-600 text-justify hyphens-auto">{summary.paragraph}</p>
+                <p className="text-gray-600 dark:text-zinc-400 text-justify hyphens-auto">{summary.paragraph}</p>
               </div>
             </div>
           )}
@@ -196,7 +197,7 @@ function VideoSummary() {
             href="https://github.com/stong/tldw"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
+            className="text-sm text-gray-400 hover:text-gray-600 dark:text-zinc-500 dark:hover:text-zinc-400 transition-colors mx-2"
           >
             GitHub
           </a>
@@ -204,7 +205,7 @@ function VideoSummary() {
             href="https://zellic.io"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
+            className="text-sm text-gray-400 hover:text-gray-600 dark:text-zinc-500 dark:hover:text-zinc-400 transition-colors mx-2"
           >
             Zellic
           </a>
