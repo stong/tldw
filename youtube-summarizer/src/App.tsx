@@ -208,6 +208,14 @@ function VideoSummary() {
           >
             Zellic
           </a>
+          <a
+            href="https://pwn.cat"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
+          >
+            About
+          </a>
         </div>
       </div>
     </div>
