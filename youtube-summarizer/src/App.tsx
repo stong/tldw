@@ -134,7 +134,8 @@ function VideoSummary() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Paste YouTube URL here..."
               className="flex-1 max-w-xl px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 dark:focus:ring-blue-600 dark:placeholder:text-zinc-500"
-            />
+              autofocus
+              />
             <button
               type="submit"
               title="Summarize"
