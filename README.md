@@ -31,8 +31,9 @@ docker-compose up -d
 
 # Local development
 
+- prepare `.env` file
 - `python3 -m virtualenv venv ; source venv/bin/activate`
 - `pip install -r requirements.txt`
 - launch backend `python backend.py &`
-- edit backend url in `App.tsx`
+- If needed, edit backend url in `App.tsx`
 - frontend setup `cd youtube-summarizer ; yarn install ; yarn dev`
