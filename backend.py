@@ -87,7 +87,7 @@ def summarize_video():
 
         # If video too long, reject
         print(f'Video id: {video_id}, duration: {duration} = {duration//60}:{duration%60:02}')
-        if duration >= 5400:
+        if duration >= 7200:
             return jsonify({
                 "error": "Too long video"
             }), 400
