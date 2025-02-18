@@ -19,9 +19,12 @@ Set the variables in .env:
 ```
 OPENAI_API_KEY=sk-proj-xxxxxx...
 PROXY_URL=https://user:pass@your-proxy-provider-here.com:8888
+MAX_VIDEO_DURATION=7200
 ```
 
-Variable `PROXY_URL` is optional but recommended for production deployments, recommend using a residential or LTE proxy.
+Variables:
+- `PROXY_URL` is optional but recommended for production deployments, recommend using a residential or LTE proxy.
+- `MAX_VIDEO_DURATION` is optional, defaults to 7200 (2 hours). Videos longer than this will be rejected.
 
 Then:
 
