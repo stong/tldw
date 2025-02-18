@@ -10,6 +10,7 @@ import traceback
 
 app = Flask(__name__)
 app.config['PROXY_URL'] = None  # Default value
+app.config['MAX_VIDEO_DURATION'] = int(os.getenv('MAX_VIDEO_DURATION', 7200))  # 2 hours in seconds
 
 cors = CORS(app)  # Enable CORS for all routes
 
@@ -87,7 +88,7 @@ def summarize_video():
 
         # If video too long, reject
         print(f'Video id: {video_id}, duration: {duration} = {duration//60}:{duration%60:02}')
-        if duration >= 7200:
+        if duration >= app.config['MAX_VIDEO_DURATION']:
             return jsonify({
                 "error": "Too long video"
             }), 400
@@ -153,7 +154,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Server configuration')
     parser.add_argument('--port', type=int, default=5000, help='Port number (default: 5000)')
     parser.add_argument('--proxy', default=os.getenv('PROXY_URL'), help='Proxy URL (default: PROXY_URL environment variable or None)')
+    parser.add_argument('--max-duration', type=int, default=app.config['MAX_VIDEO_DURATION'],
+                       help='Maximum video duration in seconds (default: MAX_VIDEO_DURATION environment variable or 7200)')
     args = parser.parse_args()
     app.config['PROXY_URL'] = args.proxy
+    app.config['MAX_VIDEO_DURATION'] = args.max_duration
     print(f'Serving on port {args.port}')
     serve(app, host="0.0.0.0", port=args.port)
