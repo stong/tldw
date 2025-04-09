@@ -47,13 +47,17 @@ function VideoSummary() {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v=';
   // Handle URL changes (including back/forward navigation)
   useEffect(() => {
-    const videoId = searchParams.get('v');
+    let videoId = searchParams.get('v') || searchParams.get("")
+    if (videoId?.startsWith(YOUTUBE_VIDEO_URL)) {
+      videoId = videoId.substring(YOUTUBE_VIDEO_URL.length)
+    }
     const currentVideoId = (videoInfo && videoInfo.video_id) || ''
     if (videoId) {
       if (videoId != currentVideoId) {
-        const fullUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const fullUrl = `${YOUTUBE_VIDEO_URL}${videoId}`;
         if (!videoInfo || !summary || fullUrl != url) {
           setUrl(fullUrl);
           handleSummarize(fullUrl);
