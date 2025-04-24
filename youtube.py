@@ -10,6 +10,7 @@ import re
 from urllib.parse import urlparse, parse_qs, quote_plus
 import dotenv
 from openai import OpenAI
+import gzip
 
 
 CACHE_DIR = './cache'
@@ -105,17 +106,17 @@ class VideoExtractor:
     def download_captions(self, video_id: str, caption_obj: Dict) -> str:
         ext = caption_obj['ext']
         url = caption_obj['url']
-        cache_file = os.path.join(CACHE_DIR, video_id + '.' + ext)
+        cache_file = os.path.join(CACHE_DIR, video_id + '.' + ext + '.gz')
 
         if os.path.isfile(cache_file):
-            return open(cache_file).read()
+            return gzip.open(cache_file, 'rt').read()
 
         # Download caption content
         response = requests.get(url)
         response.raise_for_status()
         content = response.text
 
-        with open(cache_file, 'w') as f:
+        with gzip.open(cache_file, 'wt') as f:
             f.write(content)
 
         return content
@@ -283,10 +284,10 @@ class VideoExtractor:
 
         video_id = yt_dlp.extractor.youtube.YoutubeIE.extract_id(url)
 
-        cache_file = os.path.join(CACHE_DIR, video_id + '.json')
+        cache_file = os.path.join(CACHE_DIR, video_id + '.json.gz')
         if os.path.isfile(cache_file):
             print(f'Reusing cached file: {cache_file}')
-            return json.load(open(cache_file))
+            return json.load(gzip.open(cache_file, 'rt'))
 
         try:
             with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
@@ -297,7 +298,7 @@ class VideoExtractor:
             print(f"Error extracting video information: {str(e)}")
             return None, None
         
-        with open(cache_file, 'w') as f:
+        with gzip.open(cache_file, 'wt') as f:
             json.dump(video_info, f, indent=4)
 
         return video_info
@@ -312,10 +313,10 @@ class Summarizer:
         video_title = video_info['fulltitle']
         video_description = video_info['description']
 
-        cache_file = os.path.join(CACHE_DIR, video_id + '.summaries.json')
+        cache_file = os.path.join(CACHE_DIR, video_id + '.summaries.json.gz')
         if os.path.isfile(cache_file):
             print(f'Using cached summaries: {cache_file}')
-            return json.load(open(cache_file))
+            return json.load(gzip.open(cache_file, 'rt'))
 
         summaries = {}
         messages=[
@@ -382,7 +383,7 @@ class Summarizer:
         messages.append({"role": "assistant", "content": message.content})
         print(message.content)
 
-        with open(cache_file, 'w') as f:
+        with gzip.open(cache_file, 'wt') as f:
             json.dump(summaries, f, indent=4)
 
         return summaries
