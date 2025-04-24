@@ -214,7 +214,7 @@ function VideoSummary() {
             href="https://pwn.cat"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-400 hover:text-gray-600 transition-colors mx-2"
+            className="text-sm text-gray-400 hover:text-gray-600 dark:text-zinc-500 dark:hover:text-zinc-400 transition-colors mx-2"
           >
             About
           </a>
