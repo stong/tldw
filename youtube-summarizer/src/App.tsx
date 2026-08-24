@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { AlertTriangle, ArrowRight } from 'lucide-react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -129,6 +129,19 @@ function VideoSummary() {
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-900 dark:text-zinc-200 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="pb-12">
+          <div
+            role="status"
+            className="mb-12 flex gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-950 shadow-sm dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-100"
+          >
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+            <div>
+              <p className="font-semibold">tldw.tube is deprecated</p>
+              <p className="mt-1 text-sm text-amber-900 dark:text-amber-200">
+                For video summaries, we recommend using Gemini&apos;s built-in
+                &ldquo;Summarize the video&rdquo; feature.
+              </p>
+            </div>
+          </div>
           <h1 className="text-4xl font-bold text-center mb-12"><a href="/">TL;DW</a></h1>
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="flex justify-center gap-2 mb-8">
